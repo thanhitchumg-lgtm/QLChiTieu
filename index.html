@@ -1,15 +1,24 @@
+Dưới đây là mã nguồn đã được tinh chỉnh lại hoàn hảo theo đúng 5 yêu cầu của bạn:
+
+1. **Đã loại bỏ hoàn toàn** mục Sao lưu & Khôi phục.
+2. **Thu gọn giao diện (Compact mode):** Tôi đã giảm `padding` (khoảng cách trên/dưới) của các thẻ (đặc biệt là thẻ Tổng chi tiêu) và giảm cỡ chữ (1-2px) ở các tiêu đề, ô nhập liệu để giao diện hiển thị được nhiều thông tin hơn trên một màn hình điện thoại mà không cần phải cuộn tay nhiều.
+3. **Đã bỏ dấu trừ (`-`)** đằng trước số tiền ở các giao dịch.
+4. **Đổi tên tiêu đề** thành "Giao dịch gần nhất".
+5. **Tối ưu không gian hiển thị:** Vùng hiển thị "Nội dung/Tên khoản chi" được nới rộng tối đa (chiếm dụng toàn bộ không gian còn trống) để chữ không bị tràn dòng. Vùng "Số tiền và Nút bấm" được gom gọn sang mép phải cực kỳ khoa học.
+
+Bạn hãy copy đoạn code này và dán đè vào `index.html`:
+
+```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <!-- Cấu hình để biến thành App toàn màn hình trên iPhone -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Chi Tiêu">
     
-    <!-- Favicon cho Safari iOS và tab trình duyệt PC -->
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2382/2382625.png">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2382/2382625.png">
     
@@ -30,7 +39,6 @@
         }
         body {
             margin: 0 auto;
-            /* Giới hạn chiều rộng trên PC, tự động căn giữa */
             max-width: 500px; 
             padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px;
             background-color: var(--bg-color);
@@ -40,49 +48,47 @@
             min-height: 100vh;
         }
         h1 {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
-            margin: 20px 0 16px 0;
+            margin: 16px 0 12px 0;
             text-align: center;
         }
         .total-card {
             background: var(--card-bg);
             border-radius: 16px;
-            padding: 20px;
+            padding: 12px 16px;
             text-align: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
         .total-label {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-sub);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             font-weight: 600;
         }
         .total-amount {
-            font-size: 34px;
+            font-size: 28px;
             font-weight: 800;
             color: var(--danger);
         }
-        .form-card, .backup-card {
+        .form-card {
             background: var(--card-bg);
             border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 20px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
         .input-group {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
         label {
             display: block;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--text-sub);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
-        
-        /* Chỉnh sửa ô input để chứa nút xóa */
         .input-with-btn {
             position: relative;
             display: flex;
@@ -90,10 +96,10 @@
         }
         .input-with-btn input {
             width: 100%;
-            padding: 12px 42px 12px 14px; /* Trừ hao không gian cho nút bên phải */
+            padding: 10px 38px 10px 12px; 
             border: 1px solid #E5E5EA;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 15px;
             background: #FAFAFC;
             outline: none;
         }
@@ -102,12 +108,12 @@
         }
         .backspace-btn {
             position: absolute;
-            right: 8px;
+            right: 6px;
             background: #E5E5EA;
             color: var(--text-sub);
             border: none;
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
             border-radius: 6px;
             display: flex;
             align-items: center;
@@ -118,14 +124,12 @@
         .backspace-btn:active {
             background: #D1D1D6;
         }
-
-        /* Thẻ Select độc lập */
         select {
             width: 100%;
-            padding: 12px 14px;
+            padding: 10px 12px;
             border: 1px solid #E5E5EA;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 15px;
             background: #FAFAFC;
             outline: none;
         }
@@ -135,16 +139,16 @@
         .date-select-row {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 8px;
+            gap: 6px;
         }
         button.add-btn {
             width: 100%;
             background: var(--primary);
             color: white;
             border: none;
-            padding: 14px;
+            padding: 12px;
             border-radius: 12px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             margin-top: 4px;
@@ -156,54 +160,57 @@
             background: #34C759;
         }
         .list-header {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .expense-list {
             background: var(--card-bg);
             border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
         .expense-item {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 14px 16px;
+            align-items: flex-start;
+            padding: 10px 12px;
             border-bottom: 1px solid #E5E5EA;
         }
         .expense-item:last-child {
             border-bottom: none;
         }
+        /* Nới rộng tối đa cho phần Tên khoản chi */
         .item-info {
             display: flex;
             flex-direction: column;
             gap: 4px;
             flex: 1;
+            overflow: hidden;
+            padding-right: 12px;
         }
         .item-name {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
+            word-wrap: break-word;
         }
         .item-meta {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-sub);
         }
+        /* Gom gọn phần Số tiền và Nút sửa/xóa sang góc phải */
         .item-right {
             display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            flex-shrink: 0;
         }
         .item-amount {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             color: var(--text-main);
-            width: 100%;
-            text-align: right;
         }
         .action-btns {
             display: flex;
@@ -213,9 +220,9 @@
             background: #E8F1FC;
             color: var(--primary);
             border: none;
-            border-radius: 8px;
-            padding: 6px 10px;
-            font-size: 13px;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
         }
@@ -223,23 +230,22 @@
             background: #FFE5E5;
             color: var(--danger);
             border: none;
-            border-radius: 8px;
-            padding: 6px 10px;
-            font-size: 13px;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
         }
         .empty-text {
             text-align: center;
-            padding: 24px;
+            padding: 20px;
             color: var(--text-sub);
-            font-size: 15px;
+            font-size: 14px;
         }
-        /* CSS Accordion Thống kê tháng */
         .month-group {
             background: var(--card-bg);
             border-radius: 16px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             overflow: hidden;
         }
@@ -247,7 +253,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px;
+            padding: 12px;
             background: #FAFAFC;
             cursor: pointer;
             border-bottom: 1px solid transparent;
@@ -256,11 +262,11 @@
             border-bottom-color: #E5E5EA;
         }
         .month-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
         }
         .month-total {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             color: var(--danger);
             display: flex;
@@ -268,7 +274,7 @@
             gap: 8px;
         }
         .toggle-icon {
-            font-size: 12px;
+            font-size: 10px;
             color: var(--text-sub);
             transition: transform 0.2s;
         }
@@ -281,29 +287,12 @@
         .month-content.show {
             display: block;
         }
-        /* Backup & Footer */
-        .backup-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .btn-secondary {
-            background: #E5E5EA;
-            color: var(--text-main);
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-        }
         .footer-copyright {
             text-align: center;
             font-style: italic;
             color: var(--text-sub);
-            font-size: 13px;
-            margin: 20px 0 10px 0;
+            font-size: 12px;
+            margin: 10px 0 20px 0;
         }
     </style>
 </head>
@@ -311,16 +300,13 @@
 
     <h1>Quản Lý Chi Tiêu</h1>
 
-    <!-- Tổng chi tiêu THÁNG HIỆN TẠI -->
     <div class="total-card">
         <div class="total-label" id="topMonthLabel">Tổng chi tiêu tháng này</div>
         <div class="total-amount" id="totalAmount">0 ₫</div>
     </div>
 
-    <!-- Form thêm / sửa khoản chi -->
     <div class="form-card">
         <div class="input-group">
-            <label>Ngày / Tháng / Năm</label>
             <div class="date-select-row">
                 <select id="selDay"></select>
                 <select id="selMonth"></select>
@@ -356,24 +342,13 @@
     </div>
 
     <!-- Danh sách lịch sử RÚT GỌN (1 giao dịch gần nhất) -->
-    <div class="list-header">Giao dịch vừa thêm</div>
+    <div class="list-header">Giao dịch gần nhất</div>
     <div class="expense-list" id="recentList"></div>
 
     <!-- Thống kê theo tháng XỔ XUỐNG -->
     <div class="list-header">Chi tiết theo tháng</div>
     <div id="monthlyAccordion"></div>
 
-    <!-- Sao lưu & Khôi phục -->
-    <div class="list-header" style="margin-top: 24px;">Sao lưu & Khôi phục</div>
-    <div class="backup-card">
-        <div class="backup-grid">
-            <button class="btn-secondary" onclick="backupData()">⬇️ Sao lưu file</button>
-            <button class="btn-secondary" onclick="document.getElementById('restoreInput').click()">⬆️ Khôi phục</button>
-        </div>
-        <input type="file" id="restoreInput" accept=".json" style="display:none" onchange="restoreData(event)">
-    </div>
-
-    <!-- Bản quyền chân trang -->
     <div class="footer-copyright">
         © 2026 - Nguyễn Hữu Thành
     </div>
@@ -414,15 +389,14 @@
             }
         }
 
-        // Hàm xóa lùi 1 ký tự khi bấm nút ⌫
         function removeLastChar(inputId) {
             const input = document.getElementById(inputId);
             if (!input.value) return;
 
             if (inputId === 'expenseAmount') {
-                let raw = input.value.replace(/\D/g, ''); // Bỏ dấu chấm
-                raw = raw.slice(0, -1); // Cắt số cuối
-                input.value = raw ? new Intl.NumberFormat('vi-VN').format(raw) : ''; // Cập nhật lại định dạng
+                let raw = input.value.replace(/\D/g, ''); 
+                raw = raw.slice(0, -1); 
+                input.value = raw ? new Intl.NumberFormat('vi-VN').format(raw) : ''; 
             } else {
                 input.value = input.value.slice(0, -1);
             }
@@ -468,7 +442,7 @@
                         <span class="item-meta">${item.category} • ${item.date}</span>
                     </div>
                     <div class="item-right">
-                        <span class="item-amount">-${formatVND(item.amount)}</span>
+                        <span class="item-amount">${formatVND(item.amount)}</span>
                         <div class="action-btns">
                             <button class="edit-btn" onclick="triggerEdit(${0})">Sửa</button>
                             <button class="delete-btn" onclick="deleteExpense(${0})">Xóa</button>
@@ -494,7 +468,7 @@
                                     <span class="item-meta">${item.category} • ${item.date}</span>
                                 </div>
                                 <div class="item-right">
-                                    <span class="item-amount">-${formatVND(item.amount)}</span>
+                                    <span class="item-amount">${formatVND(item.amount)}</span>
                                     <div class="action-btns">
                                         <button class="edit-btn" onclick="triggerEdit(${item.originalIndex})">Sửa</button>
                                         <button class="delete-btn" onclick="deleteExpense(${item.originalIndex})">Xóa</button>
@@ -596,39 +570,10 @@
             }
         }
 
-        function backupData() {
-            if (expenses.length === 0) return alert('Chưa có dữ liệu để sao lưu!');
-            const dataStr = JSON.stringify(expenses, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `sao-luu-chi-tieu-${new Date().toISOString().slice(0,10)}.json`;
-            a.click();
-        }
-
-        function restoreData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (Array.isArray(imported)) {
-                        expenses = imported;
-                        localStorage.setItem('my_expenses_v1', JSON.stringify(expenses));
-                        renderExpenses();
-                        alert('Khôi phục dữ liệu thành công!');
-                    }
-                } catch (err) {
-                    alert('File sao lưu không hợp lệ!');
-                }
-            };
-            reader.readAsText(file);
-        }
-
         initDates();
         renderExpenses();
     </script>
 </body>
 </html>
+
+```
