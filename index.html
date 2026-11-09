@@ -8,7 +8,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Chi Tiêu">
+    
+    <!-- Favicon cho Safari iOS và tab trình duyệt PC -->
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2382/2382625.png">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2382/2382625.png">
     
     <title>Quản Lý Chi Tiêu</title>
     <style>
@@ -26,16 +29,21 @@
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
         }
         body {
-            margin: 0;
+            margin: 0 auto;
+            /* Giới hạn chiều rộng trên PC, tự động căn giữa */
+            max-width: 500px; 
             padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px;
             background-color: var(--bg-color);
             color: var(--text-main);
             user-select: none;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            min-height: 100vh;
         }
         h1 {
             font-size: 28px;
             font-weight: 700;
             margin: 20px 0 16px 0;
+            text-align: center;
         }
         .total-card {
             background: var(--card-bg);
@@ -73,7 +81,46 @@
             color: var(--text-sub);
             margin-bottom: 6px;
         }
-        input, select {
+        
+        /* Chỉnh sửa ô input để chứa nút xóa */
+        .input-with-btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-with-btn input {
+            width: 100%;
+            padding: 12px 42px 12px 14px; /* Trừ hao không gian cho nút bên phải */
+            border: 1px solid #E5E5EA;
+            border-radius: 10px;
+            font-size: 16px;
+            background: #FAFAFC;
+            outline: none;
+        }
+        .input-with-btn input:focus {
+            border-color: var(--primary);
+        }
+        .backspace-btn {
+            position: absolute;
+            right: 8px;
+            background: #E5E5EA;
+            color: var(--text-sub);
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .backspace-btn:active {
+            background: #D1D1D6;
+        }
+
+        /* Thẻ Select độc lập */
+        select {
             width: 100%;
             padding: 12px 14px;
             border: 1px solid #E5E5EA;
@@ -82,7 +129,7 @@
             background: #FAFAFC;
             outline: none;
         }
-        input:focus, select:focus {
+        select:focus {
             border-color: var(--primary);
         }
         .date-select-row {
@@ -100,9 +147,13 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
+            margin-top: 4px;
         }
         button.add-btn:active {
             opacity: 0.8;
+        }
+        button.add-btn.update-mode {
+            background: #34C759;
         }
         .list-header {
             font-size: 18px;
@@ -130,6 +181,7 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
+            flex: 1;
         }
         .item-name {
             font-size: 16px;
@@ -143,11 +195,29 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
         .item-amount {
             font-size: 16px;
             font-weight: 600;
             color: var(--text-main);
+            width: 100%;
+            text-align: right;
+        }
+        .action-btns {
+            display: flex;
+            gap: 6px;
+        }
+        .edit-btn {
+            background: #E8F1FC;
+            color: var(--primary);
+            border: none;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
         }
         .delete-btn {
             background: #FFE5E5;
@@ -157,6 +227,7 @@
             padding: 6px 10px;
             font-size: 13px;
             font-weight: 600;
+            cursor: pointer;
         }
         .empty-text {
             text-align: center;
@@ -164,7 +235,7 @@
             color: var(--text-sub);
             font-size: 15px;
         }
-        /* CSS cho Accordion Thống kê tháng */
+        /* CSS Accordion Thống kê tháng */
         .month-group {
             background: var(--card-bg);
             border-radius: 16px;
@@ -246,7 +317,7 @@
         <div class="total-amount" id="totalAmount">0 ₫</div>
     </div>
 
-    <!-- Form thêm khoản chi -->
+    <!-- Form thêm / sửa khoản chi -->
     <div class="form-card">
         <div class="input-group">
             <label>Ngày / Tháng / Năm</label>
@@ -256,12 +327,21 @@
                 <select id="selYear"></select>
             </div>
         </div>
+        
         <div class="input-group">
-            <input type="text" id="expenseName" placeholder="Tên khoản chi (VD: Ăn trưa, Đổ xăng)">
+            <div class="input-with-btn">
+                <input type="text" id="expenseName" placeholder="Tên khoản chi (VD: Ăn trưa, Đổ xăng)">
+                <button type="button" class="backspace-btn" onclick="removeLastChar('expenseName')">⌫</button>
+            </div>
         </div>
+        
         <div class="input-group">
-            <input type="number" id="expenseAmount" placeholder="Số tiền (VD: 50000)" inputmode="numeric">
+            <div class="input-with-btn">
+                <input type="text" id="expenseAmount" placeholder="Số tiền (VD: 50.000)" inputmode="numeric" oninput="formatInputNumber(event)">
+                <button type="button" class="backspace-btn" onclick="removeLastChar('expenseAmount')">⌫</button>
+            </div>
         </div>
+        
         <div class="input-group">
             <select id="expenseCategory">
                 <option value="🍜 Ăn uống">🍜 Ăn uống</option>
@@ -272,11 +352,11 @@
                 <option value="📦 Khác">📦 Khác</option>
             </select>
         </div>
-        <button class="add-btn" onclick="addExpense()">+ Thêm Khoản Chi</button>
+        <button class="add-btn" id="submitBtn" onclick="saveExpense()">+ Thêm Khoản Chi</button>
     </div>
 
-    <!-- Danh sách lịch sử RÚT GỌN (3 giao dịch gần nhất) -->
-    <div class="list-header">Giao dịch gần đây</div>
+    <!-- Danh sách lịch sử RÚT GỌN (1 giao dịch gần nhất) -->
+    <div class="list-header">Giao dịch vừa thêm</div>
     <div class="expense-list" id="recentList"></div>
 
     <!-- Thống kê theo tháng XỔ XUỐNG -->
@@ -299,8 +379,8 @@
     </div>
 
     <script>
-        // Sử dụng kho lưu trữ cũ để bảo toàn dữ liệu
         let expenses = JSON.parse(localStorage.getItem('my_expenses_v1')) || [];
+        let editIndex = -1; 
 
         function initDates() {
             const dSel = document.getElementById('selDay');
@@ -325,18 +405,40 @@
             return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
         }
 
+        function formatInputNumber(e) {
+            let val = e.target.value.replace(/\D/g, '');
+            if (val !== '') {
+                e.target.value = new Intl.NumberFormat('vi-VN').format(val);
+            } else {
+                e.target.value = '';
+            }
+        }
+
+        // Hàm xóa lùi 1 ký tự khi bấm nút ⌫
+        function removeLastChar(inputId) {
+            const input = document.getElementById(inputId);
+            if (!input.value) return;
+
+            if (inputId === 'expenseAmount') {
+                let raw = input.value.replace(/\D/g, ''); // Bỏ dấu chấm
+                raw = raw.slice(0, -1); // Cắt số cuối
+                input.value = raw ? new Intl.NumberFormat('vi-VN').format(raw) : ''; // Cập nhật lại định dạng
+            } else {
+                input.value = input.value.slice(0, -1);
+            }
+        }
+
         function renderExpenses() {
             const recentEl = document.getElementById('recentList');
             const monthlyEl = document.getElementById('monthlyAccordion');
             const totalEl = document.getElementById('totalAmount');
             const topMonthLabel = document.getElementById('topMonthLabel');
 
-            // 1. Nhóm dữ liệu theo tháng và gán lại Index gốc để xóa cho đúng
             let monthlyStats = {};
             expenses.forEach((item, index) => {
                 let parts = item.date.split('/');
                 if (parts.length >= 3) {
-                    let mKey = `${parts[1].padStart(2, '0')}/${parts[2]}`; // Ví dụ: "10/2026"
+                    let mKey = `${parts[1].padStart(2, '0')}/${parts[2]}`;
                     if (!monthlyStats[mKey]) {
                         monthlyStats[mKey] = { total: 0, items: [] };
                     }
@@ -345,7 +447,6 @@
                 }
             });
 
-            // 2. Cập nhật thẻ Tổng chi tiêu tháng hiện tại (Thực tế của tháng này)
             const now = new Date();
             const currentMonthKey = `${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
             const currentMonthTotal = monthlyStats[currentMonthKey] ? monthlyStats[currentMonthKey].total : 0;
@@ -353,15 +454,14 @@
             topMonthLabel.innerText = `Tổng chi tiêu Tháng ${currentMonthKey}`;
             totalEl.innerText = formatVND(currentMonthTotal);
 
-            // 3. Render 3 giao dịch gần nhất
             if (expenses.length === 0) {
                 recentEl.innerHTML = '<div class="empty-text">Chưa có khoản chi tiêu nào</div>';
                 monthlyEl.innerHTML = '<div class="empty-text">Chưa có dữ liệu thống kê</div>';
                 return;
             }
 
-            let recent3 = expenses.slice(0, 3);
-            recentEl.innerHTML = recent3.map((item, localIndex) => `
+            let recent1 = expenses.slice(0, 1);
+            recentEl.innerHTML = recent1.map((item, localIndex) => `
                 <div class="expense-item">
                     <div class="item-info">
                         <span class="item-name">${item.name}</span>
@@ -369,12 +469,14 @@
                     </div>
                     <div class="item-right">
                         <span class="item-amount">-${formatVND(item.amount)}</span>
-                        <button class="delete-btn" onclick="deleteExpense(${localIndex})">Xóa</button>
+                        <div class="action-btns">
+                            <button class="edit-btn" onclick="triggerEdit(${0})">Sửa</button>
+                            <button class="delete-btn" onclick="deleteExpense(${0})">Xóa</button>
+                        </div>
                     </div>
                 </div>
             `).join('');
 
-            // 4. Render Accordion Thống kê theo tháng
             monthlyEl.innerHTML = Object.keys(monthlyStats).map(mKey => `
                 <div class="month-group">
                     <div class="month-header" onclick="toggleAccordion('${mKey}')" id="header-${mKey}">
@@ -389,11 +491,14 @@
                             <div class="expense-item">
                                 <div class="item-info">
                                     <span class="item-name">${item.name}</span>
-                                    <span class="item-meta">${item.category} •${item.date}</span>
+                                    <span class="item-meta">${item.category} • ${item.date}</span>
                                 </div>
                                 <div class="item-right">
                                     <span class="item-amount">-${formatVND(item.amount)}</span>
-                                    <button class="delete-btn" onclick="deleteExpense(${item.originalIndex})">Xóa</button>
+                                    <div class="action-btns">
+                                        <button class="edit-btn" onclick="triggerEdit(${item.originalIndex})">Sửa</button>
+                                        <button class="delete-btn" onclick="deleteExpense(${item.originalIndex})">Xóa</button>
+                                    </div>
                                 </div>
                             </div>
                         `).join('')}
@@ -402,7 +507,6 @@
             `).join('');
         }
 
-        // Hàm hiệu ứng đóng mở Accordion
         function toggleAccordion(mKey) {
             const content = document.getElementById(`content-${mKey}`);
             const header = document.getElementById(`header-${mKey}`);
@@ -410,17 +514,19 @@
             header.classList.toggle('active');
         }
 
-        function addExpense() {
+        function saveExpense() {
             const nameInput = document.getElementById('expenseName');
             const amountInput = document.getElementById('expenseAmount');
             const categoryInput = document.getElementById('expenseCategory');
+            const btn = document.getElementById('submitBtn');
             
             const d = document.getElementById('selDay').value.padStart(2, '0');
             const m = document.getElementById('selMonth').value.padStart(2, '0');
             const y = document.getElementById('selYear').value;
 
             const name = nameInput.value.trim();
-            const amount = parseFloat(amountInput.value);
+            const amountStr = amountInput.value.replace(/\D/g, '');
+            const amount = parseFloat(amountStr);
 
             if (!name || isNaN(amount) || amount <= 0) {
                 alert('Vui lòng nhập tên khoản chi và số tiền hợp lệ!');
@@ -428,13 +534,21 @@
             }
 
             const formattedDate = `${d}/${m}/${y}`;
-
-            expenses.unshift({
+            const newItem = {
                 name: name,
                 amount: amount,
                 category: categoryInput.value,
                 date: formattedDate
-            });
+            };
+
+            if (editIndex > -1) {
+                expenses[editIndex] = newItem;
+                editIndex = -1; 
+                btn.innerText = "+ Thêm Khoản Chi";
+                btn.classList.remove('update-mode');
+            } else {
+                expenses.unshift(newItem);
+            }
 
             localStorage.setItem('my_expenses_v1', JSON.stringify(expenses));
             nameInput.value = '';
@@ -442,9 +556,41 @@
             renderExpenses();
         }
 
+        function triggerEdit(index) {
+            const item = expenses[index];
+            editIndex = index;
+
+            const parts = item.date.split('/');
+            document.getElementById('selDay').value = parseInt(parts[0]);
+            document.getElementById('selMonth').value = parseInt(parts[1]);
+            document.getElementById('selYear').value = parseInt(parts[2]);
+            
+            document.getElementById('expenseName').value = item.name;
+            document.getElementById('expenseAmount').value = new Intl.NumberFormat('vi-VN').format(item.amount);
+            document.getElementById('expenseCategory').value = item.category;
+
+            const btn = document.getElementById('submitBtn');
+            btn.innerText = "✓ Cập nhật Khoản Chi";
+            btn.classList.add('update-mode');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function deleteExpense(index) {
             if(confirm("Xóa khoản chi tiêu này?")) {
                 expenses.splice(index, 1);
+                
+                if (editIndex === index) {
+                    document.getElementById('expenseName').value = '';
+                    document.getElementById('expenseAmount').value = '';
+                    editIndex = -1;
+                    const btn = document.getElementById('submitBtn');
+                    btn.innerText = "+ Thêm Khoản Chi";
+                    btn.classList.remove('update-mode');
+                } else if (editIndex > index) {
+                    editIndex--; 
+                }
+
                 localStorage.setItem('my_expenses_v1', JSON.stringify(expenses));
                 renderExpenses();
             }
