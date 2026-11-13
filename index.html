@@ -170,7 +170,6 @@
         .expense-item:last-child {
             border-bottom: none;
         }
-        /* Nới rộng tối đa cho phần Tên khoản chi */
         .item-info {
             display: flex;
             flex-direction: column;
@@ -181,14 +180,13 @@
         }
         .item-name {
             font-size: 15px;
-            font-weight: 600;
+            font-weight: 400; /* Đã bỏ in đậm */
             word-wrap: break-word;
         }
         .item-meta {
             font-size: 12px;
             color: var(--text-sub);
         }
-        /* Gom gọn phần Số tiền và Nút sửa/xóa sang góc phải */
         .item-right {
             display: flex;
             flex-direction: column;
@@ -252,7 +250,7 @@
         }
         .month-title {
             font-size: 15px;
-            font-weight: 600;
+            font-weight: 600; /* Vẫn giữ in đậm cho tiêu đề Tháng */
         }
         .month-total {
             font-size: 15px;
@@ -427,7 +425,7 @@
             recentEl.innerHTML = recent1.map((item, localIndex) => `
                 <div class="expense-item">
                     <div class="item-info">
-                        <span class="item-name">${item.name}</span>
+                        <span class="item-name">- ${item.name}</span>
                         <span class="item-meta">${item.category} • ${item.date}</span>
                     </div>
                     <div class="item-right">
@@ -453,7 +451,7 @@
                         ${monthlyStats[mKey].items.map(item => `
                             <div class="expense-item">
                                 <div class="item-info">
-                                    <span class="item-name">${item.name}</span>
+                                    <span class="item-name">- ${item.name}</span>
                                     <span class="item-meta">${item.category} • ${item.date}</span>
                                 </div>
                                 <div class="item-right">
